@@ -2,10 +2,10 @@ const Pdfkit = require('pdfkit')
 const unidecode = require('unidecode-plus')
 const Jimp = require('jimp')
 const dataset = require('./dataset.json')
-
 const supportedOutputTypes = ['jpeg/buf', 'png/buf', 'jpeg/b64', 'png/b64']
-const symbols = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
-  .split('').concat(['margin'])
+const symbols =
+    ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+      .split('').concat(['margin'])
 const jimpObjectPromises = []
 for (let i = 0; i < symbols.length; i += 1) {
   for (let j = 0; j < 6; j += 1) {
@@ -91,8 +91,8 @@ function getBatchSize () {
 
 function processText (rawText) {
   const batchSize = getBatchSize()
-  const str = cleanText(rawText.split('\t').join('     ').split('\r').join('\n').split('\f')
-    .join('\n').split('\v').join('\n'))
+  const str = cleanText(rawText.split('\t').join('     ').split('\r').join(
+    '\n').split('\f').join('\n').split('\v').join('\n'))
   const maxLen = findMaxLen(str.split('\n').join(' ').split(' '))
   const width = maxLen > batchSize ? maxLen : batchSize
   const wrappedText = []
@@ -156,10 +156,8 @@ function generateImageArray (str, ruled, width) {
         if (symbols.includes(character)) {
           baseImage.composite(jimpObjects[
             symbols.indexOf(
-              character
-            )][randInt(
-            6
-          )], x, y)
+              character)][randInt(
+            6)], x, y)
         } else {
           baseImage.composite(jimpObjects[
             symbols.indexOf(' ')][
@@ -169,10 +167,8 @@ function generateImageArray (str, ruled, width) {
         if (ruled) {
           baseImage.composite(jimpObjects[
             symbols.indexOf(
-              'margin'
-            )][randInt(
-            6
-          )], x, y)
+              'margin')][randInt(
+            6)], x, y)
         }
         x += 18
       })
@@ -188,12 +184,10 @@ function generateImages (imageArray, outputType) {
   imageArray.forEach((image) => {
     if (outputType.slice(-4, outputType.length) === '/buf') {
       promisesToKeep.push(image.getBufferAsync(
-          `image/${outputType.slice(0, -4)}`
-      ))
+                `image/${outputType.slice(0, -4)}`))
     } else {
       promisesToKeep.push(image.getBase64Async(
-          `image/${outputType.slice(0, -4)}`
-      ))
+                `image/${outputType.slice(0, -4)}`))
     }
   })
   return Promise.all(promisesToKeep)
@@ -215,24 +209,22 @@ function generatePdf (str, ruled, width) {
       line.split('').forEach((character) => {
         if (symbols.includes(character)) {
           doc.image(dataset[symbols.indexOf(
-            character
-          )][randInt(6)],
+            character)][randInt(6)],
           x, y, {
             width: 2380 / width,
             height: 3408 / width
           })
         } else {
           doc.image(dataset[symbols.indexOf(
-            ' '
-          )][randInt(6)], x, y, {
+            ' ')][randInt(6)], x,
+          y, {
             width: 2380 / width,
             height: 3408 / width
           })
         }
         if (ruled) {
           doc.image(dataset[symbols.indexOf(
-            'margin'
-          )][randInt(6)],
+            'margin')][randInt(6)],
           x, y, {
             width: 2380 / width,
             height: 3408 / width
@@ -248,17 +240,16 @@ function generatePdf (str, ruled, width) {
 }
 async function main (rawText = '', optionalArgs = {}) {
   if (!checkArgType(rawText, optionalArgs)) {
-    return Promise.reject(Object.assign(new Error('Invalid arguments!'), {}))
+    return Promise.reject(Object.assign(new Error(
+      'Invalid arguments!'), {}))
   } else {
     const outputType = optionalArgs.outputtype || 'pdf'
     const ruled = optionalArgs.ruled || false
     if (!isArgValid(outputType)) {
       return Promise.reject(Object.assign(new Error(
-          `Invalid output type "${outputType}"!`
-      ), {
-        supportedOutputTypes: supportedOutputTypes.concat([
-          'pdf'
-        ]),
+                `Invalid output type "${outputType}"!`), {
+        supportedOutputTypes: supportedOutputTypes
+          .concat(['pdf']),
         default: 'pdf'
       }))
     } else {
@@ -268,8 +259,7 @@ async function main (rawText = '', optionalArgs = {}) {
       }
       if (typeof (jimpObjects) === 'undefined') {
         const resolvedPromises = await Promise.all(
-          jimpObjectPromises
-        )
+          jimpObjectPromises)
         jimpObjects = {}
         for (let i = 0; i < symbols.length; i += 1) {
           jimpObjects[i] = []
